@@ -14,11 +14,11 @@ function Entity:Ctor()
     --self.m_ComponentsCache = {}
     --self.m_ComponentIndicesCache = {}
 
-    self.m_OnComponentAdded = Delegate()    --entity, index, component
-    self.m_OnComponentRemoved = Delegate()  --entity, index, component
-    self.m_OnComponentReplaced = Delegate() --entity, index, previousComponent, newComponent
-    self.m_OnEntityReleased = Delegate()    --entity
-    self.m_OnDestroyEntity = Delegate()     --entity
+    self.onComponentAdded = Delegate()    --entity, index, component
+    self.onComponentRemoved = Delegate()  --entity, index, component
+    self.onComponentReplaced = Delegate() --entity, index, previousComponent, newComponent
+    self.onEntityReleased = Delegate()    --entity
+    self.onDestroyEntity = Delegate()     --entity
 end
 
 function Entity:GetCreationIndex()
@@ -46,8 +46,8 @@ function Entity:AddComponent(index, component)
 
     self.m_Components[index] = component;
 
-    if self.m_OnComponentAdded ~= nil then
-        self.m_OnComponentAdded(self, index, component);
+    if self.onComponentAdded ~= nil then
+        self.onComponentAdded(self, index, component);
     end
 end
 
@@ -73,12 +73,12 @@ function Entity:ReplaceComponentInternal(index, replacement)
         self.m_Components[index] = replacement
 
         if replacement ~= nil then
-            if self.m_OnComponentReplaced ~= nil then
-                self.m_OnComponentReplaced(self, index, previousComponent, replacement)
+            if self.onComponentReplaced ~= nil then
+                self.onComponentReplaced(self, index, previousComponent, replacement)
             end
         else
-            if self.m_OnComponentRemoved ~= nil then
-                self.m_OnComponentRemoved(self, index, previousComponent)
+            if self.onComponentRemoved ~= nil then
+                self.onComponentRemoved(self, index, previousComponent)
             end
         end
 
@@ -152,29 +152,29 @@ function Entity:CreateComponent(index)
 end
 
 function Entity:Release()
-    if self.m_OnEntityReleased ~= nil then
-        self.m_OnEntityReleased(self)
+    if self.onEntityReleased ~= nil then
+        self.onEntityReleased(self)
     end
 end
 
 function Entity:Destroy()
     -- TODO Exception:m_IsEnabled == false
-    if self.m_OnDestroyEntity ~= nil then
-        self.m_OnDestroyEntity(self)
+    if self.onDestroyEntity ~= nil then
+        self.onDestroyEntity(self)
     end
 end
 
 function Entity:InternalDestroy()
     self.m_IsEnabled = false;
     self:RemoveAllComponents();
-    self.m_OnComponentAdded = nil;
-    self.m_OnComponentReplaced = nil;
-    self.m_OnComponentRemoved = nil;
-    self.m_OnDestroyEntity = nil;
+    self.onComponentAdded = nil;
+    self.onComponentReplaced = nil;
+    self.onComponentRemoved = nil;
+    self.onDestroyEntity = nil;
 end
 
 function Entity:RemoveAllOnEntityReleasedHandlers()
-    self.m_OnEntityReleased = nil;
+    self.onEntityReleased = nil;
 end
 
 -- function Entity:ToString()
