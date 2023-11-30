@@ -124,7 +124,7 @@ function Matcher:NoneOf(...)
     return self
 end
 
-function Matcher:Match(entity)
+function Matcher:Matches(entity)
     local matchAll = self.m_AllOfIndices == nil or entity:HasComponents(self.m_AllOfIndices) 
     local matchAny = self.m_AnyOfIndices == nil or entity:HasAnyComponent(self.m_AnyOfIndices) 
     local matchNone = self.m_NoneOfIndices == nil or not entity:HasAnyComponent(self.m_NoneOfIndices)  
