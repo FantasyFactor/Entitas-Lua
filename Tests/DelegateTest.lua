@@ -5,25 +5,25 @@ package.path = package.path .. ";?.lua"
 local Delegate = require("Entitas/Delegate")
 
 
-local function delegate1(value)
+local function delegate1(self, value)
     
 end
 
-local function delegate2(value)
+local function delegate2(self, value)
     
 end
 
 function TestNewDelegate()
     local d1 = Delegate()
-    local d2 = Delegate(delegate1)
-    local d3 = Delegate(delegate1, delegate2)
+    assert(d1.m_InvokeList ~= nil)
+    assert(d1.m_Count == 0)
 end
 
 function TestAddDelegate()
     local d1 = Delegate()
 
-    d1:AddDelegate(delegate1)
-    d1:AddDelegate(delegate2)
+    d1:AddDelegate(nil, delegate1)
+    d1:AddDelegate(nil, delegate2)
 
     assert(d1.m_Count == 2)
 end
@@ -33,10 +33,10 @@ function TestCallDelegate()
 
     local n = 0
 
-    d1:AddDelegate(function (value)
+    d1:AddDelegate(nil, function (self, value)
         n = n + value
     end)
-    d1:AddDelegate(function (value)
+    d1:AddDelegate(nil, function (self, value)
         n = n* value
     end)
 
@@ -48,15 +48,15 @@ end
 function TestRemoveDelegate()
     local d1 = Delegate()
 
-    d1:AddDelegate(delegate1)
-    d1:AddDelegate(delegate2)
+    d1:AddDelegate(nil, delegate1)
+    d1:AddDelegate(nil, delegate2)
 
-    assert(d1.m_Count == 2)
+    assert(d1:GetCount() == 2)
 
-    d1:RemoveDelegate(delegate1)
-    d1:RemoveDelegate(delegate2)
+    d1:RemoveDelegate(nil, delegate1)
+    d1:RemoveDelegate(nil, delegate2)
 
-    assert(d1.m_Count == 0)
+    assert(d1:GetCount() == 0)
 end
 
 os.exit(luaunit.LuaUnit.run())
