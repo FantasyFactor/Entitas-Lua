@@ -7,6 +7,7 @@ local Group = Class("Group")
 function Group:Ctor(matcher)
     self.m_Matcher = matcher
     self.m_Entities = {}
+    self.m_Count = 0
 
     self.m_EntitiesCache = nil
 
@@ -18,20 +19,22 @@ end
 local function AddEntitySilently(self, entity)
     if entity:IsEnable() then
         local has = self.m_Entities[entity]
-        if has then
+        if not has then
             self.m_EntitiesCache = nil
-        else
             self.m_Entities[entity] = true
+            self.m_Count = self.m_Count + 1
+
+            return true
         end 
 
-        return has
+        return false
     end
 
     return false
 end
 
 local function AddEntity(self, entity, index, component)
-    if self:AddEntitySilently(entity) and self.onEntityAdded ~= nil then
+    if AddEntitySilently(self, entity) and self.onEntityAdded ~= nil then
         self.onEntityAdded(self, entity, index, component)
     end
 end
@@ -41,6 +44,8 @@ local function RemoveEntitySilently(self, entity)
     if has then
         self.m_Entities[entity] = nil
         self.m_EntitiesCache = nil
+        self.m_Count = self.m_Count - 1
+        return true
     end 
     return false
 end
@@ -64,6 +69,10 @@ local function CopyTo(hashSet, array)
             table.insert(array, entity)
         end
     end
+end
+
+function Group:GetCount()
+    return self.m_Count
 end
 
 function Group:HandleEntitySilently(entity)
