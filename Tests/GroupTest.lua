@@ -39,6 +39,7 @@ function TestGroupHandleEntitySilently()
         group:HandleEntitySilently(entity)
     end
     
+    assert(group:GetCount() == 5)
     assert(group.m_Entities[entities[1]])
     assert(group.m_Entities[entities[3]])
     assert(group.m_Entities[entities[5]])
@@ -57,7 +58,7 @@ function TestGroupHandleEntity()
     local group = Group(matcher)
 
     for i, entity in ipairs(entities) do
-        group:HandleEntitySilently(entity)
+        group:HandleEntity(entity)
     end
     
     assert(group.m_Entities[entities[1]])
@@ -103,10 +104,6 @@ function TestGroupGetEntities()
     end
 
     local cacheEnities = group:GetEntities()
-
-    for i, v in ipairs(cacheEnities) do
-        print(v)
-    end
 
     table.sort(cacheEnities, function(a, b) 
         return a:GetCreationIndex() < b:GetCreationIndex()
