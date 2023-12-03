@@ -32,7 +32,14 @@ function Pools:Pop(key)
     return nil
 end
 
-function Pools:Clear()
+function Pools:Clear(key)
+    local stack = self.m_Stacks[key]
+    if stack ~= nil then
+        self.m_Stacks[key] = nil
+    end
+end
+
+function Pools:ClearAll()
     self.m_Stacks = nil
 end
 
