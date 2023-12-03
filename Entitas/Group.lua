@@ -91,6 +91,24 @@ function Group:HandleEntity(entity, index, component)
     end
 end
 
+--by Csharp(GroupChanged<TEntity> HandleEntity(TEntity entity))
+function Group:HandleEntityAndGetEvent(entity)
+    local event = nil
+    if self.m_Matcher:Matches(entity) then
+        if AddEntitySilently(self, entity) then
+            return self.onEntityAdded
+        else
+            return nil
+        end
+    else
+        if RemoveEntitySilently(self, entity) then 
+            return self.onEntityRemoved
+        else
+            return nil
+        end 
+    end
+end
+
 function Group:UpdateEntity(entity, index, previousComponent, newComponent)
     if self.m_Entities[entity] then
         if self.onEntityRemoved ~= nil then
