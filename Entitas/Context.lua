@@ -221,7 +221,7 @@ function Context:ClearAllComponentPool()
     self.m_ComponentPools:ClearAll()
 end
 
-function Context:Rest()
+function Context:Reset()
     self:DestroyAllEntities()
     self.ResetCreationIndex()
 end
