@@ -87,7 +87,7 @@ local function OnDestroyEntity(entity)
         self.onEntityDestroyed(self, entity)
     end
 
-    if entity.retainCount == 1 then --TODO:AERC
+    if entity:GetRetainCount() == 1 then 
         entity.onEntityReleased:RemoveDelegate(self.onEntityReleased) 
         self.m_ReusableEntities:Push(entity)
         entity:Release(self)
@@ -114,6 +114,8 @@ function Context:CreateEntity()
     self.m_Entities[entity] = true
     self.m_EntityCount = self.m_EntityCount + 1
 
+    entity:Retain(self)
+
     self.m_EntitiesCache = nil
 
     entity.onComponentAdded:AddDelegate(self, UpdateGroupsComponentAddedOrRemoved)
@@ -137,6 +139,12 @@ function Context:DestroyAllEntities()
     end
 
     self.m_Entities = {}
+
+    for k, v in pairs(self.m_RetainedEntities) do
+        if v ~= nil then
+            --TODO:Exception
+        end
+    end
 end
 
 function Context:HasEntity(entity)

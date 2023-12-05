@@ -23,6 +23,7 @@ local function AddEntitySilently(self, entity)
             self.m_EntitiesCache = nil
             self.m_Entities[entity] = true
             self.m_Count = self.m_Count + 1
+            entity:Retain(self)
 
             return true
         end 
@@ -45,6 +46,7 @@ local function RemoveEntitySilently(self, entity)
         self.m_Entities[entity] = nil
         self.m_EntitiesCache = nil
         self.m_Count = self.m_Count - 1
+        entity:Release(self)
         return true
     end 
     return false
@@ -60,6 +62,7 @@ local function RemoveEntity(self, entity, index, component)
             self.onEntityRemoved(self, entity, index, component)
         end
 
+        entity:Release(self)
     end
 end
 

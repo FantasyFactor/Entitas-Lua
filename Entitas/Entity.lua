@@ -1,5 +1,6 @@
 require("Core/Class")
 local Delegate = require("Entitas/Delegate")
+local AERC = require("Entitas/AERC")
 
 local Entity = Class("Entity")
 
@@ -10,6 +11,7 @@ function Entity:Ctor()
     self.m_Components = {}
     self.m_CreationIndex = 0
     self.m_IsEnabled = false
+    self.m_Aerc = AERC(self)
 
     --self.m_ComponentsCache = {}
     --self.m_ComponentIndicesCache = {}
@@ -27,6 +29,14 @@ end
 
 function Entity:IsEnable()
     return self.m_IsEnabled
+end
+
+function Entity:GetAerc()
+    return self.m_Aerc
+end
+
+function Entity:GetRetainCount()
+    return self.m_Aerc:GetCount()
 end
 
 function Entity:Initialize(creationIndex, componentPools)
@@ -151,10 +161,18 @@ function Entity:CreateComponent(index)
     return component
 end
 
-function Entity:Release()
-    if self.onEntityReleased ~= nil then
-        self.onEntityReleased(self)
-    end
+function Entity:Retain(owner)
+    self.m_Aerc:Retain(owner)
+end
+
+function Entity:Release(owner)
+    self.m_Aerc:Release(owner)
+    
+    if self.m_Aerc:GetCount() == 0 then
+        if self.onEntityReleased ~= nil then
+            self.onEntityReleased(self)
+        end
+    end  
 end
 
 function Entity:Destroy()

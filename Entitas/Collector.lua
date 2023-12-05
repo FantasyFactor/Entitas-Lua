@@ -25,6 +25,7 @@ local function AddEntityCache(self, group, entity, index, component)
     if not has then
         self.m_CollectedEntities[entity] = true
         self.m_Count = self.m_Count + 1
+        entity:Retain(self)
     end
 end
 
@@ -63,7 +64,12 @@ function Collector:ClearCollectedEntities()
         return
     end
 
-    -- TODO:AREC Retain
+    for entity, has in pairs(self.m_CollectedEntities) do
+        if entity ~= nil then
+            entity:Release(self)
+        end
+    end
+
     self.m_CollectedEntities = {}
     self.m_Count = 0
 end
