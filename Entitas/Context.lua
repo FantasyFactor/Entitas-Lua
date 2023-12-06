@@ -201,13 +201,24 @@ function Context:GetGroup(matcher)
     return group
 end
 
--- function Context:AddEntityIndex(entityIndex)
-    
--- end
+function Context:AddEntityIndex(entityIndex)
+    local name = entityIndex:GetName()
+    if self.m_EntityIndices[name] ~= nil then
+        --TODO:Exception exist
+        return 
+    end
 
--- function Context:GetEntityIndex(name)
-    
--- end
+    self.m_EntityIndices[name] = entityIndex
+end
+
+function Context:GetEntityIndex(name)
+    local entityIndex = self.m_EntityIndices[name]
+    if entityIndex == nil then
+        --TODO:Exception not exist
+    end
+
+    return entityIndex
+end
 
 function Context:ResetCreationIndex()
     self.m_CreationIndex = 0
