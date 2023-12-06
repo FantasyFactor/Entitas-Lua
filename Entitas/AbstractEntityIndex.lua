@@ -16,6 +16,10 @@ function AbstractEntityIndex:Dtor()
     self:Deactivate()
 end
 
+function AbstractEntityIndex:GetName()
+    return self.m_Name
+end
+
 local function IndexEntities(group)
     local entities = group:GetEntities()
 
