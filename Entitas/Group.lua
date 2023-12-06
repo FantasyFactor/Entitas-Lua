@@ -10,6 +10,7 @@ function Group:Ctor(matcher)
     self.m_Count = 0
 
     self.m_EntitiesCache = nil
+    self.m_SingleEntityCache = nil
 
     self.onEntityAdded = Delegate()    --group, entity, index, component
     self.onEntityRemoved = Delegate()    --group, entity, index, component
@@ -21,6 +22,7 @@ local function AddEntitySilently(self, entity)
         local has = self.m_Entities[entity]
         if not has then
             self.m_EntitiesCache = nil
+            self.m_SingleEntityCache = nil
             self.m_Entities[entity] = true
             self.m_Count = self.m_Count + 1
             entity:Retain(self)
@@ -45,6 +47,8 @@ local function RemoveEntitySilently(self, entity)
     if has then
         self.m_Entities[entity] = nil
         self.m_EntitiesCache = nil
+        self.m_SingleEntityCache = nil
+
         self.m_Count = self.m_Count - 1
         entity:Release(self)
         return true
@@ -57,6 +61,8 @@ local function RemoveEntity(self, entity, index, component)
     if has then
         self.m_Entities[entity] = nil
         self.m_EntitiesCache = nil
+        self.m_SingleEntityCache = nil
+
         self.m_Count = self.m_Count - 1
         
         if self.onEntityRemoved ~= nil then
@@ -143,6 +149,25 @@ function Group:GetEntities(buffer)
         CopyTo(self.m_Entities, buffer)
         return buffer
     end
+end
+
+function Group:GetSingleEntity()
+    if self.m_SingleEntityCache == nil then
+        if self.m_Count == 1 then
+            for entity, v in pairs(self.m_Entities) do
+                if entity ~= nil then
+                    self.m_SingleEntityCache = entity
+                    break
+                end
+            end
+        else if self.m_Count == 0 then
+            return nil
+        end
+            --TODO: Exception not single
+        end
+    end
+    
+    return self.m_SingleEntityCache
 end
 
 -- function Group:ToString()
