@@ -57,6 +57,7 @@ local function RemoveEntity(self, entity, index, component)
     if has then
         self.m_Entities[entity] = nil
         self.m_EntitiesCache = nil
+        self.m_Count = self.m_Count - 1
         
         if self.onEntityRemoved ~= nil then
             self.onEntityRemoved(self, entity, index, component)
