@@ -25,6 +25,7 @@ end
 
 function FileWriter:Close()
     self.fileStream:close()
+    print(string.format("Generate: %s", self.path))
 end
 
 return FileWriter

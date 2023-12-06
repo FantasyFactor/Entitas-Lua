@@ -9,8 +9,8 @@ function GetContext(...)
     local arg = {...}
 
     local cwd = arg[1]
-    local sourceRoot = arg[2]
-    local generateRoot = arg[3]
+    local sourceRoot = arg[2]       --Components所在目录
+    local generateRoot = arg[3]     --生成的目标目录
 
     local moduleInfos = {}
     for i = 4, #arg do
@@ -102,3 +102,5 @@ end
 
 local context = GetContext(...)
 Generate(context)
+
+print(string.format("Generate Success"))

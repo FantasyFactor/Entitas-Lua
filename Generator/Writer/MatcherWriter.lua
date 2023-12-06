@@ -3,10 +3,9 @@ local Template = require "Generator/Template/Template"
 local MatcherWriter = Class("MatcherWriter", LuaFileWriter)
 
 function MatcherWriter:Ctor(root, moduleName)
-    self.name = string.format("%sMatcher", moduleName)
     self.moduleName = moduleName
     self.componentNames = {}
-    self:Open(string.format("%s/%s/%s.lua", root, moduleName, self.name))
+    self:Open(string.format("%s/%s/%sMatcher.lua", root, moduleName, moduleName))
 
     self:PushRequire("Entitas/Matcher.lua")
 end
