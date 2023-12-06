@@ -31,6 +31,19 @@ function AERC:Retain(owner)
     end
 end
 
+function AERC:SafeRetain(owner)
+    if EntitasSetting.ENTITAS_FAST_AND_UNSAFE then
+        local has = self.m_Owners[owner]
+        
+        if not has then
+            self.m_Owners[owner] = true
+            self.m_RetainCount = self.m_RetainCount + 1
+        end
+    else
+        self.m_RetainCount = self.m_RetainCount + 1
+    end
+end
+
 function AERC:Release(owner)
     if EntitasSetting.ENTITAS_FAST_AND_UNSAFE then
         local has = self.m_Owners[owner]
@@ -40,6 +53,19 @@ function AERC:Release(owner)
             self.m_RetainCount = self.m_RetainCount - 1
         else
             --TODO: Exception not exist owner
+        end
+    else
+        self.m_RetainCount = self.m_RetainCount - 1
+    end
+end
+
+function AERC:SafeRelease(owner)
+    if EntitasSetting.ENTITAS_FAST_AND_UNSAFE then
+        local has = self.m_Owners[owner]
+
+        if has then
+            self.m_Owners[owner] = false
+            self.m_RetainCount = self.m_RetainCount - 1
         end
     else
         self.m_RetainCount = self.m_RetainCount - 1
