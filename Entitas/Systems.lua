@@ -1,5 +1,7 @@
 require("Core/Class")
 
+local ReactiveSystem = require("Entitas/ReactiveSystem")
+
 local Systems = Class("Systems")
 
 function Systems:Ctor()
@@ -94,16 +96,43 @@ function Systems:TearDown()
     end
 end
 
--- function Systems:ActivateReactiveSystems()
-    
--- end
+function Systems:ActivateReactiveSystems()
+    for i, system in ipairs(self.m_ExecuteSystems) do
+        if system.IsAssignableFrom(ReactiveSystem) then
+            system:Activate()
+        end
 
--- function Systems:DeactivateReactiveSystems()
-    
--- end
+        -- nestedSystems
+        if system.IsAssignableFrom(Systems) then
+            system:ActivateReactiveSystems()
+        end
+    end
+end
 
--- function Systems:ClearReactiveSystems()
-    
--- end
+function Systems:DeactivateReactiveSystems()
+    for i, system in ipairs(self.m_ExecuteSystems) do
+        if system.IsAssignableFrom(ReactiveSystem) then
+            system:Deactivate()
+        end
+
+        -- nestedSystems
+        if system.IsAssignableFrom(Systems) then
+            system:DeactivateReactiveSystems()
+        end
+    end
+end
+
+function Systems:ClearReactiveSystems()
+    for i, system in ipairs(self.m_ExecuteSystems) do
+        if system.IsAssignableFrom(ReactiveSystem) then
+            system:Clear()
+        end
+
+        -- nestedSystems
+        if system.IsAssignableFrom(Systems) then
+            system:ClearReactiveSystems()
+        end
+    end
+end
 
 return Systems
