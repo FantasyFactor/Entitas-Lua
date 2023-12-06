@@ -1,10 +1,11 @@
 local LuaFileWriter = require "Generator/Writer/LuaFileWriter"
+local Template = require "Generator/Template/Template"
 local ComponentsLookupWriter = Class("ComponentsLookupWriter", LuaFileWriter)
 
 function ComponentsLookupWriter:Ctor(root, moduleName)
-    self.name = string.format("%sComponentsLookup", moduleName)
+    self.moduleName = moduleName
     self.componentNames = {}
-    self:Open(string.format("%s/%s/%s.lua", root, moduleName, self.name))
+    self:Open(string.format("%s/%s/%s.lua", root, moduleName, string.format("%sComponentsLookup", moduleName)))
 end
 
 function ComponentsLookupWriter:PushComponentName(name)
@@ -13,15 +14,17 @@ end
 
 function ComponentsLookupWriter:Flush()
     LuaFileWriter.Flush(self)
-    self:WriteLineFormat("local %s = {}", self.name)
-    self:WriteLine()
-    for index, componentName in ipairs(self.componentNames) do
-        self:WriteLineFormat("%s.%s = %s", self.name, componentName, index)
-    end
-    self:WriteLine()
-    self:WriteLineFormat("%s.TotalComponents = %s", self.name, #self.componentNames)
-    self:WriteLine()
-    self:WriteLineFormat("return %s", self.name)
+
+    local componentIndices = self:ConcatByLine(self.componentNames, function(index, componentName)
+        return string.format("%s.%s = %s", self.fileName, componentName, index)
+    end)
+
+    self:WriteTemplate(Template.ComponentsLookupTemplate, {
+        ModuleName = self.moduleName,
+        ComponentCount = #self.componentNames,
+        ComponentIndices = componentIndices
+    })
+
     self:Close()
 end
 

@@ -1,0 +1,11 @@
+local ${FILE_NAME} = Singleton("${FILE_NAME}")
+
+function ${FILE_NAME}:Init()
+${CreateContexts}
+end
+
+function ${FILE_NAME}:Reset()
+${ResetContexts}
+end
+
+return ${FILE_NAME}

@@ -1,0 +1,35 @@
+function ${FILE_NAME}:Get${ComponentName}Entity()
+	return self:GetGroup(${ModuleName}Matcher.Match${ComponentName}()):GetSingleEntity()
+end
+
+function ${FILE_NAME}:Get${ComponentName}()
+	return self:Get${ComponentName}Entity():Get${ComponentName}()
+end
+
+function ${FILE_NAME}:Has${ComponentName}()
+	return self:Get${ComponentName}Entity() ~= nil
+end
+
+${Notes}
+function ${FILE_NAME}:Set${ComponentName}(${Params})
+	if self:Has${ComponentName}() then
+		 error("this context already has an entity with ${ComponentName}")
+	end
+	local entity = self:CreateEntity()
+	entity:Add${ComponentName}(${Params})
+	return entity
+end
+
+${Notes}
+function ${FILE_NAME}:Replace${ComponentName}(${Params})
+	local entity = self:Get${ComponentName}Entity()
+	if entity == nil then
+		entity = self:Set${ComponentName}(${Params})
+	else
+		entity:Replace${ComponentName}(${Params})
+	end
+end
+
+function ${FILE_NAME}:Remove${ComponentName}()
+	self:Get${ComponentName}Entity():Destroy()
+end

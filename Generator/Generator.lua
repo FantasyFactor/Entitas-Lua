@@ -5,7 +5,7 @@ local MatcherWriter = require "Generator/Writer/MatcherWriter"
 local ComponentsLookupWriter = require "Generator/Writer/ComponentsLookupWriter"
 local ContextsWriter = require "Generator/Writer/ContextsWriter"
 
-function GetArgs(...)
+function GetContext(...)
     local arg = {...}
 
     local cwd = arg[1]
@@ -34,8 +34,8 @@ function GetArgs(...)
     }
 end
 
-function Generate(args)
-    local generateRoot = args.generateRoot
+function Generate(context)
+    local generateRoot = context.generateRoot
 
     if not generateRoot then
         error("Please input generate root")
@@ -43,7 +43,7 @@ function Generate(args)
     end
 
     local contextsWriter = ContextsWriter(generateRoot)
-    for moduleName, moduleInfo in pairs(args.moduleInfos) do
+    for moduleName, moduleInfo in pairs(context.moduleInfos) do
         contextsWriter:PushModuleName(moduleName)
         os.execute(string.format("mkdir %s\\%s", generateRoot, moduleName))
         local contextWriter = ContextWriter(generateRoot, moduleName)
@@ -100,5 +100,5 @@ function GenerateComponentInfo(name, data)
     return info
 end
 
-local args = GetArgs(...)
-Generate(args)
+local context = GetContext(...)
+Generate(context)

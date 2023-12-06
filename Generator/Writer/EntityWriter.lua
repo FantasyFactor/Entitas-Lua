@@ -1,5 +1,5 @@
 local LuaFileWriter = require "Generator/Writer/LuaFileWriter"
-
+local Template = require "Generator/Template/Template"
 local EntityWriter = Class("EntityWriter", LuaFileWriter)
 
 function EntityWriter:Ctor(root, moduleName)
@@ -16,47 +16,60 @@ end
 
 function EntityWriter:Flush()
     LuaFileWriter.Flush(self)
-    self:WriteLineFormat("local %s = Class(\"%s\", Entity)", self.name, self.name)
-    self:WriteLine()
 
-    for _, componentInfo in ipairs(self.componentInfos) do
-        local lookUpName = string.format("%sComponentsLookup.%s", self.moduleName, componentInfo.name)
-        -------------------------------------------------------------------------------------------------
-        self:WriteLineFormat("function %s:Get%s()", self.name, componentInfo.name)
-        self:WriteLineFormat("\treturn self:GetComponent(%s)", lookUpName)
-        self:WriteLine("end")
-        self:WriteLine()
-        -------------------------------------------------------------------------------------------------
-        self:WriteLineFormat("function %s:Has%s()", self.name, componentInfo.name)
-        self:WriteLineFormat("\tself:HasComponent(%s)", lookUpName)
-        self:WriteLine("end")
-        self:WriteLine()
-        -------------------------------------------------------------------------------------------------
-        for _, note in ipairs(componentInfo.notes) do
-            self:WriteLine(note)
-        end
-        self:WriteLineFormat("function %s:Add%s(%s)", self.name, componentInfo.name, componentInfo.params)
-        self:WriteLineFormat("\tlocal component = self:CreateComponent(%s)", lookUpName)
-        self:WriteLineFormat("\tself:AddComponent(%s, component)", lookUpName)
-        self:WriteLine("end")
-        self:WriteLine()
-        -------------------------------------------------------------------------------------------------
-        for _, note in ipairs(componentInfo.notes) do
-            self:WriteLine(note)
-        end
-        self:WriteLineFormat("function %s:Replace%s(%s)", self.name, componentInfo.name, componentInfo.params)
-        self:WriteLineFormat("\tlocal component = self:CreateComponent(%s)", lookUpName)
-        self:WriteLineFormat("\tself:ReplaceComponent(%s, component)", lookUpName)
-        self:WriteLine("end")
-        self:WriteLine()
-        -------------------------------------------------------------------------------------------------
-        self:WriteLineFormat("function %s:Remove%s()", self.name, componentInfo.name)
-        self:WriteLineFormat("\tself:ReplaceComponent(%s)", lookUpName)
-        self:WriteLine("end")
-        self:WriteLine()
-    end
+    self:WriteTemplate(Template.EntityTemplate, {
+        Components = self:ConcatByLine(self.componentInfos, function(_, componentInfo)
+            return Template.Generate(Template.ComponentTemplate, self.fileName, {
+                ModuleName = self.moduleName,
+                ComponentName = componentInfo.name,
+                Notes = self:ConcatByLine(componentInfo.notes),
+                Params = componentInfo.params
+            })
+        end)
+    })
+    
 
-    self:WriteLineFormat("return %s", self.name)
+    -- self:WriteLineFormat("local %s = Class(\"%s\", Entity)", self.name, self.name)
+    -- self:WriteLine()
+
+    -- for _, componentInfo in ipairs(self.componentInfos) do
+    --     local lookUpName = string.format("%sComponentsLookup.%s", self.moduleName, componentInfo.name)
+    --     -------------------------------------------------------------------------------------------------
+    --     self:WriteLineFormat("function %s:Get%s()", self.name, componentInfo.name)
+    --     self:WriteLineFormat("\treturn self:GetComponent(%s)", lookUpName)
+    --     self:WriteLine("end")
+    --     self:WriteLine()
+    --     -------------------------------------------------------------------------------------------------
+    --     self:WriteLineFormat("function %s:Has%s()", self.name, componentInfo.name)
+    --     self:WriteLineFormat("\tself:HasComponent(%s)", lookUpName)
+    --     self:WriteLine("end")
+    --     self:WriteLine()
+    --     -------------------------------------------------------------------------------------------------
+    --     for _, note in ipairs(componentInfo.notes) do
+    --         self:WriteLine(note)
+    --     end
+    --     self:WriteLineFormat("function %s:Add%s(%s)", self.name, componentInfo.name, componentInfo.params)
+    --     self:WriteLineFormat("\tlocal component = self:CreateComponent(%s)", lookUpName)
+    --     self:WriteLineFormat("\tself:AddComponent(%s, component)", lookUpName)
+    --     self:WriteLine("end")
+    --     self:WriteLine()
+    --     -------------------------------------------------------------------------------------------------
+    --     for _, note in ipairs(componentInfo.notes) do
+    --         self:WriteLine(note)
+    --     end
+    --     self:WriteLineFormat("function %s:Replace%s(%s)", self.name, componentInfo.name, componentInfo.params)
+    --     self:WriteLineFormat("\tlocal component = self:CreateComponent(%s)", lookUpName)
+    --     self:WriteLineFormat("\tself:ReplaceComponent(%s, component)", lookUpName)
+    --     self:WriteLine("end")
+    --     self:WriteLine()
+    --     -------------------------------------------------------------------------------------------------
+    --     self:WriteLineFormat("function %s:Remove%s()", self.name, componentInfo.name)
+    --     self:WriteLineFormat("\tself:ReplaceComponent(%s)", lookUpName)
+    --     self:WriteLine("end")
+    --     self:WriteLine()
+    -- end
+
+    -- self:WriteLineFormat("return %s", self.name)
     self:Close()
 end
 

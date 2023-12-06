@@ -1,6 +1,7 @@
 local ${FILE_NAME} = {}
 
 ${ComponentIndices}
+
 ${FILE_NAME}.TotalComponents = ${ComponentCount}
 
 return ${FILE_NAME}

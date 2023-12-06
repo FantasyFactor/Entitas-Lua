@@ -12,6 +12,19 @@ function LuaFileWriter:PushRequire(path)
     table.insert(self.requires, path)
 end
 
+function LuaFileWriter:ConcatByLine(t, get)
+    local content = ""
+    for i, v in ipairs(t) do
+        local s = get and get(i, v) or tostring(v)
+        if content == "" then
+            content = s
+        else
+            content = string.format("%s\n%s", content, s)
+        end
+    end
+    return content
+end
+
 function LuaFileWriter:Flush()
     if self.requires then
         for _, path in ipairs(self.requires) do
