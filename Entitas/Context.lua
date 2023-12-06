@@ -237,6 +237,24 @@ function Context:Reset()
     self.ResetCreationIndex()
 end
 
+--- 创建Collector
+---@param triggers table {{matcher1, groupEvent1}, {matcher2, groupEvent2}}
+function Context:CreateCollector(triggers)
+    if triggers == nil then
+        --TODO: Exception
+    end
+
+    local groups = {}
+    local groupEvents = {}
+
+    for i, trigger in ipairs(triggers) do
+        table.insert(groups, self:GetGroup(trigger.matcher))
+        table.insert(groupEvents, trigger.groupEvent)
+    end
+
+    return Collector(groups, groupEvents)
+end
+
 -- function Context:ToString()
     
 -- end
