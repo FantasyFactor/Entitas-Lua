@@ -3,7 +3,7 @@ function ${FILE_NAME}:Get${ComponentName}()
 end
 
 function ${FILE_NAME}:Has${ComponentName}()
-	self:HasComponent(${ModuleName}ComponentsLookup.${ComponentName})
+	return self:HasComponent(${ModuleName}ComponentsLookup.${ComponentName})
 end
 
 ${Notes}
