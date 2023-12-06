@@ -1,4 +1,4 @@
-require "Core/Class"
+require "Generator/Class"
 local ContextWriter = require "Generator/Writer/ContextWriter"
 local EntityWriter = require "Generator/Writer/EntityWriter"
 local MatcherWriter = require "Generator/Writer/MatcherWriter"

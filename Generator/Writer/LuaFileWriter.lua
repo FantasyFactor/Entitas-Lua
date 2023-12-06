@@ -1,10 +1,6 @@
 local FileWriter = require "Generator/Writer/FileWriter"
 local LuaFileWriter = Class("LuaFileWriter", FileWriter)
 
-function LuaFileWriter:Ctor(path)
-    self.requires = nil
-end
-
 function LuaFileWriter:PushRequire(path)
     if not self.requires then
         self.requires = {}
