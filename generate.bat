@@ -14,4 +14,5 @@ for /r %DIR_COMPONENTS% %%f in (*.lua) do (
     set files=!files! %%~dpnf
 )
 
-lua %FILE_GENERATOR% %~dp0 %DIR_COMPONENTS% %DIR_GENERATED% !files:~1!
+lua %FILE_GENERATOR% %DIR_COMPONENTS% %DIR_GENERATED% !files:~1!
+pause

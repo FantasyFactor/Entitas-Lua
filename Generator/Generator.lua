@@ -1,3 +1,7 @@
+local cwd = string.match(arg[0], "(.+)/(.+).lua$")
+package.path = string.format("%s;%s/?.lua", package.path, cwd)
+package.path = string.format("%s;%s/../?.lua", package.path, cwd)
+
 require "Generator/Class"
 local ContextWriter = require "Generator/Writer/ContextWriter"
 local EntityWriter = require "Generator/Writer/EntityWriter"
@@ -6,23 +10,19 @@ local ComponentsLookupWriter = require "Generator/Writer/ComponentsLookupWriter"
 local ContextsWriter = require "Generator/Writer/ContextsWriter"
 
 function GetContext(...)
-    local arg = {...}
+    local args = {...}
+    local sourceRoot = args[1]       --Components所在目录
+    local generateRoot = args[2]     --生成的目标目录
 
-    local cwd = arg[1]
-    local sourceRoot = arg[2]       --Components所在目录
-    local generateRoot = arg[3]     --生成的目标目录
+    package.path = string.format("%s;%s/?.lua", package.path, sourceRoot)
 
     local moduleInfos = {}
-    for i = 4, #arg do
-        if arg[i] and arg[i] ~= "" then
-            local shortPath = string.sub(arg[i], #cwd + 1 + #sourceRoot + 1)
-            local module, name = string.match(shortPath, "(%w+)\\(%w+)$")
+    for i = 3, #args do
+        if args[i] and args[i] ~= "" then
+            local module, name = string.match(args[i], "(%w+)\\(%w+)$")
             if module then
                 if not moduleInfos[module] then
-                    moduleInfos[module] = {
-                        path = string.sub(arg[i], #cwd + 1),
-                        module = module
-                    }
+                    moduleInfos[module] = require(string.format("%s/%s", module, name))
                 end
             end
         end
@@ -43,14 +43,13 @@ function Generate(context)
     end
 
     local contextsWriter = ContextsWriter(generateRoot)
-    for moduleName, moduleInfo in pairs(context.moduleInfos) do
+    for moduleName, components in pairs(context.moduleInfos) do
         contextsWriter:PushModuleName(moduleName)
         os.execute(string.format("mkdir %s\\%s", generateRoot, moduleName))
         local contextWriter = ContextWriter(generateRoot, moduleName)
         local entityWriter = EntityWriter(generateRoot, moduleName)
         local componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
         local matcherWriter = MatcherWriter(generateRoot, moduleName)
-        local components = require(moduleInfo.path)
         local hasUnique = false
         for _, componentInfos in ipairs(components) do
             local name, unique, data = unpack(componentInfos)
