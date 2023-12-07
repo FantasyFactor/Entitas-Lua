@@ -70,6 +70,7 @@ function Generate(context)
             contextWriter:PushRequire(matcherWriter.path, context.scriptEntry)
         end
         contextsWriter:PushRequire(contextWriter.path, context.scriptEntry)
+        contextsWriter:PushRequire(entityWriter.path, context.scriptEntry)
 
         contextWriter:Flush()
         entityWriter:Flush()

@@ -1,9 +1,4 @@
 local ${FILE_NAME} = Class("${FILE_NAME}", Context)
 
-function ${FILE_NAME}.NewEntity()
-	return ${ModuleName}Entity()
-end
-
 ${UniqueEntities}
-
 return ${FILE_NAME}

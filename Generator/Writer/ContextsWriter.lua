@@ -16,7 +16,7 @@ function ContextsWriter:Flush()
     LuaFileWriter.Flush(self)
 
     local createContexts = self:ConcatByLine(self.moduleNames, function(_, moduleName)
-        return string.format("\tself.%s = %sContext(1, %sContext.NewEntity)", string.lower(moduleName), moduleName, moduleName)
+        return string.format("\tself.%s = %sContext(1, %sEntity)", string.lower(moduleName), moduleName, moduleName)
     end)
 
     local resetContexts = self:ConcatByLine(self.moduleNames, function(_, moduleName)
