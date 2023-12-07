@@ -76,6 +76,8 @@ local function OnDestroyEntity(self, entity)
 
     self.m_Entities[entity] = nil
 
+    self.m_EntityCount = self.m_EntityCount - 1
+
     self.m_EntitiesCache = nil
 
     if self.onEntityWillBeDestroyed ~= nil then
@@ -141,11 +143,17 @@ function Context:DestroyAllEntities()
 
     self.m_Entities = {}
 
+    self.m_EntityCount = 0
+
     for k, v in pairs(self.m_RetainedEntities) do
         if v ~= nil then
             --TODO:Exception
         end
     end
+end
+
+function Context:GetCount()
+    return self.m_EntityCount
 end
 
 function Context:HasEntity(entity)
