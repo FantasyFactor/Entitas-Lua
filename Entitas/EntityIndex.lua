@@ -31,7 +31,7 @@ function EntityIndex:AddEntity(key, entity)
     local entities = self:GetEntities(key)
     table.insert(entities, entity)
 
-    entity.GetAerc():SafeRetain(self)
+    entity:GetAerc():SafeRetain(self)
 end
 
 function EntityIndex:RemoveEntity(key, entity)
@@ -48,7 +48,7 @@ function EntityIndex:RemoveEntity(key, entity)
 
     if removeIndex ~= nil then
         table.remove(entities, removeIndex)
-        entity.GetAerc():SafeRelease(self)
+        entity:GetAerc():SafeRelease(self)
     end
 end
 
@@ -56,7 +56,7 @@ function EntityIndex:Clear()
     for key, entities in pairs(self.m_Index) do
         for i, entity in ipairs(entities) do
             if entity ~= nil then
-                entity.GetAerc():SafeRelease(self)
+                entity:GetAerc():SafeRelease(self)
             end
         end
     end

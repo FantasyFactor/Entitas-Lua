@@ -30,7 +30,7 @@ function PrimaryEntityIndex:AddEntity(key, entity)
 
     self.m_Index[key] = entity
     
-    entity.GetAerc():SafeRetain(self)
+    entity:GetAerc():SafeRetain(self)
 end
 
 function PrimaryEntityIndex:RemoveEntity(key, entity)
@@ -38,14 +38,14 @@ function PrimaryEntityIndex:RemoveEntity(key, entity)
 
     if entity ~= nil then
         self.m_Index[key] = nil
-        entity.GetAerc():SafeRelease(self)
+        entity:GetAerc():SafeRelease(self)
     end
 end
 
 function PrimaryEntityIndex:Clear()
     for key, entity in pairs(self.m_Index) do
         if entity ~= nil then
-            entity.GetAerc():SafeRelease(self)
+            entity:GetAerc():SafeRelease(self)
         end
     end
 

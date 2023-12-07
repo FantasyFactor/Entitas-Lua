@@ -20,7 +20,7 @@ function AbstractEntityIndex:GetName()
     return self.m_Name
 end
 
-local function IndexEntities(group)
+function AbstractEntityIndex:IndexEntities(group)
     local entities = group:GetEntities()
 
     for i, entity in ipairs(entities) do
@@ -55,13 +55,13 @@ local function OnEntityRemoved(group, entity, index, component)
 end
 
 function AbstractEntityIndex:Activate()
-    self.m_Group.OnEntityAdded:AddDelegate(OnEntityAdded)
-    self.m_Group.OnEntityRemoved:AddDelegate(OnEntityRemoved)
+    self.m_Group.onEntityAdded:AddDelegate(self, OnEntityAdded)
+    self.m_Group.onEntityRemoved:AddDelegate(self, OnEntityRemoved)
 end
 
 function AbstractEntityIndex:Deactivate()
-    self.m_Group.OnEntityAdded:RemoveDelegate(OnEntityAdded)
-    self.m_Group.OnEntityRemoved:RemoveDelegate(OnEntityRemoved)
+    self.m_Group.onEntityAdded:RemoveDelegate(self, OnEntityAdded)
+    self.m_Group.onEntityRemoved:RemoveDelegate(self, OnEntityRemoved)
     self:Clear()
 end
 
