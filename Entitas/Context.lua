@@ -67,7 +67,7 @@ local function OnEntityReleased(self, entity)
     self.m_ReusableEntities:Push(entity)
 end
 
-local function OnDestroyEntity(entity)
+local function OnDestroyEntity(self, entity)
     local has = self.m_Entities[entity]
 
     if not has then
