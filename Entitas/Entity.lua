@@ -185,14 +185,14 @@ end
 function Entity:InternalDestroy()
     self.m_IsEnabled = false;
     self:RemoveAllComponents();
-    self.onComponentAdded = nil;
-    self.onComponentReplaced = nil;
-    self.onComponentRemoved = nil;
-    self.onDestroyEntity = nil;
+    self.onComponentAdded:RemoveAllDelegate();
+    self.onComponentReplaced:RemoveAllDelegate();
+    self.onComponentRemoved:RemoveAllDelegate();
+    self.onDestroyEntity:RemoveAllDelegate();
 end
 
 function Entity:RemoveAllOnEntityReleasedHandlers()
-    self.onEntityReleased = nil;
+    self.onEntityReleased:RemoveAllDelegate();
 end
 
 -- function Entity:ToString()

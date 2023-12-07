@@ -44,6 +44,11 @@ local function RemoveDelegate(self, target, ...)
     end
 end
 
+local function RemoveAllDelegate(self)
+    self.m_InvokeList = {}
+    self.m_Count = 0
+end
+
 local function GetCount(self)
     return self.m_Count
 end
@@ -67,6 +72,7 @@ end
 DelegateImplementation.__call = Invoke
 DelegateImplementation.AddDelegate = AddDelegate
 DelegateImplementation.RemoveDelegate = RemoveDelegate
+DelegateImplementation.RemoveAllDelegate = RemoveAllDelegate
 DelegateImplementation.GetCount = GetCount
 DelegateImplementation.Invoke = Invoke
 
