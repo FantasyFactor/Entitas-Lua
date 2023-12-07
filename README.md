@@ -9,6 +9,6 @@
 - [x] Collector
 - [x] Context
 - [x] Systems
-- [ ] EntityIndex
-- [ ] AERC
-- [ ] ReactiveSystem
+- [x] EntityIndex
+- [x] AERC
+- [x] ReactiveSystem
