@@ -1,0 +1,23 @@
+function ${FILE_NAME}:Get${ComponentName}()
+	return self:GetComponent(${ModuleName}ComponentsLookup.${ComponentName})
+end
+
+function ${FILE_NAME}:Has${ComponentName}()
+	return self:HasComponent(${ModuleName}ComponentsLookup.${ComponentName})
+end
+
+${Notes}
+function ${FILE_NAME}:Add${ComponentName}(${Params})
+	local component = self:CreateComponent(${ModuleName}ComponentsLookup.${ComponentName})
+	self:AddComponent(${ModuleName}ComponentsLookup.${ComponentName}, component)
+end
+
+${Notes}
+function ${FILE_NAME}:Replace${ComponentName}(${Params})
+	local component = self:CreateComponent(${ModuleName}ComponentsLookup.${ComponentName})
+	self:ReplaceComponent(${ModuleName}ComponentsLookup.${ComponentName}, component)
+end
+
+function ${FILE_NAME}:Remove${ComponentName}()
+	self:ReplaceComponent(${ModuleName}ComponentsLookup.${ComponentName})
+end

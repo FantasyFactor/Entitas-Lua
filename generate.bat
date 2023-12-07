@@ -1,7 +1,8 @@
 @echo off
-set FILE_GENERATOR=Generator/Generator.lua
-set DIR_COMPONENTS=Components
-set DIR_GENERATED=Generated
+set FILE_GENERATOR="Generator/Generator.lua"
+set DIR_COMPONENTS="Components"
+set DIR_GENERATED="Generated"
+set SCRIPT_ENTRY=""
 
 setlocal enabledelayedexpansion
 
@@ -14,4 +15,5 @@ for /r %DIR_COMPONENTS% %%f in (*.lua) do (
     set files=!files! %%~dpnf
 )
 
-lua %FILE_GENERATOR% %~dp0 %DIR_COMPONENTS% %DIR_GENERATED% !files:~1!
+lua %FILE_GENERATOR% %DIR_COMPONENTS% %DIR_GENERATED% %SCRIPT_ENTRY% !files:~1!
+pause

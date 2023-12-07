@@ -1,0 +1,13 @@
+local ${FILE_NAME} = {}
+
+function ${FILE_NAME}.AllOf(...)
+	return Matcher():AllOf(...)
+end
+
+function ${FILE_NAME}.AnyOf(...)
+	return Matcher():AnyOf(...)
+end
+
+${Matchers}
+
+return ${FILE_NAME}
