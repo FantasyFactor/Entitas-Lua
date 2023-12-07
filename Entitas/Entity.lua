@@ -144,7 +144,7 @@ function Entity:HasAnyComponent(indices)
 end
 
 function Entity:RemoveAllComponents()
-    for k, v in self.m_Components do
+    for k, v in pairs(self.m_Components) do
         if v ~= nil then
             self.ReplaceComponent(k, nil)
         end
