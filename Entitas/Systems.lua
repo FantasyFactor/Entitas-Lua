@@ -16,19 +16,19 @@ function Systems:Add(system)
         return self
     end
     
-    if system.Initialize ~= nil and type(system.Initialize) == "Function" then
+    if system.Initialize ~= nil and type(system.Initialize) == "function" then
         table.insert(self.m_InitializeSystems, system)
     end
 
-    if system.Execute ~= nil and type(system.Execute) == "Function" then
+    if system.Execute ~= nil and type(system.Execute) == "function" then
         table.insert(self.m_ExecuteSystems, system)
     end
 
-    if system.Cleanup ~= nil and type(system.Cleanup) == "Function" then
+    if system.Cleanup ~= nil and type(system.Cleanup) == "function" then
         table.insert(self.m_CleanupSystems, system)
     end
 
-    if system.TearDown ~= nil and type(system.TearDown) == "Function" then
+    if system.TearDown ~= nil and type(system.TearDown) == "function" then
         table.insert(self.m_TearDownSystems, system)
     end
 
@@ -55,19 +55,19 @@ function Systems:Remove(system)
         return
     end
     
-    if system.Initialize ~= nil and type(system.Initialize) == "Function" then
+    if system.Initialize ~= nil and type(system.Initialize) == "function" then
         RemoveElement(self.m_InitializeSystems, system)
     end
 
-    if system.Execute ~= nil and type(system.Execute) == "Function" then
+    if system.Execute ~= nil and type(system.Execute) == "function" then
         RemoveElement(self.m_ExecuteSystems, system)
     end
 
-    if system.Cleanup ~= nil and type(system.Cleanup) == "Function" then
+    if system.Cleanup ~= nil and type(system.Cleanup) == "function" then
         RemoveElement(self.m_CleanupSystems, system)
     end
 
-    if system.TearDown ~= nil and type(system.TearDown) == "Function" then
+    if system.TearDown ~= nil and type(system.TearDown) == "function" then
         RemoveElement(self.m_TearDownSystems, system)
     end
 end
