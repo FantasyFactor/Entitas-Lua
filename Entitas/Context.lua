@@ -102,9 +102,7 @@ local function OnDestroyEntity(self, entity)
 end
 
 function Context:CreateEntity()
-    local entity = nil
-
-    self.m_CreationIndex = self.m_CreationIndex + 1
+    local entity = nil 
 
     if self.m_ReusableEntities:Count() > 0 then
         entity = self.m_ReusableEntities:Pop()
@@ -113,6 +111,8 @@ function Context:CreateEntity()
         entity = self.m_EntityFactory()
         entity:Initialize(self.m_CreationIndex, self.m_ComponentPools)
     end
+
+    self.m_CreationIndex = self.m_CreationIndex + 1
 
     self.m_Entities[entity] = true
     self.m_EntityCount = self.m_EntityCount + 1

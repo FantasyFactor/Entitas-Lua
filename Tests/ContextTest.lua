@@ -27,7 +27,7 @@ function TestContextCreateEntity()
     assert(context:GetCount() == 1)
     assert(entity1 ~= nil)
     assert(entity1:IsEnable())
-    assert(entity1:GetCreationIndex() == 1)
+    assert(entity1:GetCreationIndex() == 0)
 
     entity1:Destroy()
 
@@ -36,7 +36,7 @@ function TestContextCreateEntity()
     assert(context:GetCount() == 1)
     assert(entity2 == entity1)
     assert(entity2:IsEnable())
-    assert(entity2:GetCreationIndex() == 2)
+    assert(entity2:GetCreationIndex() == 1)
 end
 
 function TestContextDestroyAllEntities()
