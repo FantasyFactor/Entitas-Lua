@@ -44,8 +44,8 @@ local function GetGroup(entities)
 end
 
 local function GetKeys(entity, component)
-    local component = entity:GetComponent(1)
-    return {component.x}
+    local component1 = entity:GetComponent(1)
+    return {component1.x}
 end
 
 function TestEntityIndexCtor()
