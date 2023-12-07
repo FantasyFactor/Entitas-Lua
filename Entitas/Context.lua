@@ -16,6 +16,7 @@ function Context:Ctor(startCreationIndex, entityFactory)
     self.m_Entities = {}
     self.m_EntitiesCache = nil
     self.m_EntityCount = 0
+    self.m_Groups = {}
     self.m_GroupsForIndex = {} --Dictionary<List<Group>>
     self.m_ComponentPools = Pools()
     self.m_EntityIndices = {}
