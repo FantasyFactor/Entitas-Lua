@@ -24,7 +24,7 @@ end
 
 function ReactiveSystem:Execute()
     if self.m_Collector ~= nil and self.m_Collector:GetCount() > 0 then
-        local entities = self.m_Collector:GetEntities()
+        local entities = self.m_Collector:GetCollectedEntities()
 
         local buffer = {}
         local bufferSize = 0
