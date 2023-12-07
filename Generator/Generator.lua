@@ -83,12 +83,14 @@ function GenerateComponentInfo(name, data)
     local info = {
         name = name, -- component name
         notes = {},
+        assigns = {},
         params = "" -- all component fields
     }
 
     for _, field in ipairs(data) do
         local fieldName, fieldTypeName, note, initValue = unpack(field)
         local newFieldName = string.format("new%s%s", string.char(string.byte(fieldName, 1, 1) - 32), string.sub(fieldName, 2))
+        table.insert(info.assigns, {fieldName, newFieldName})
         table.insert(info.notes, string.format("---@param %s %s %s", newFieldName, fieldTypeName, note))
         if info.params == "" then
             info.params = newFieldName

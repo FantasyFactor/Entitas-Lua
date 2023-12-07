@@ -5,7 +5,7 @@ local ContextsWriter = Class("ContextsWriter", LuaFileWriter)
 function ContextsWriter:Ctor(root)
     self.moduleNames = {}
     self:Open(string.format("%s/Contexts.lua", root))
-    self:PushRequire("Core/Singleton.lua")
+    self:PushRequireLib("Core/Singleton")
 end
 
 function ContextsWriter:PushModuleName(name)

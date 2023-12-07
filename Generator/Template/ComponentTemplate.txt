@@ -9,12 +9,14 @@ end
 ${Notes}
 function ${FILE_NAME}:Add${ComponentName}(${Params})
 	local component = self:CreateComponent(${ModuleName}ComponentsLookup.${ComponentName})
+${FieldAssign}
 	self:AddComponent(${ModuleName}ComponentsLookup.${ComponentName}, component)
 end
 
 ${Notes}
 function ${FILE_NAME}:Replace${ComponentName}(${Params})
 	local component = self:CreateComponent(${ModuleName}ComponentsLookup.${ComponentName})
+${FieldAssign}
 	self:ReplaceComponent(${ModuleName}ComponentsLookup.${ComponentName}, component)
 end
 

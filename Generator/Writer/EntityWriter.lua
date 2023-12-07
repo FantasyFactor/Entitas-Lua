@@ -22,7 +22,14 @@ function EntityWriter:Flush()
                 ModuleName = self.moduleName,
                 ComponentName = componentInfo.name,
                 Notes = self:ConcatByLine(componentInfo.notes),
-                Params = componentInfo.params
+                Params = componentInfo.params,
+                FieldAssign = self:ConcatByLine(componentInfo.assigns, function(_, t)
+                    local fieldName, newFieldName = unpack(t)
+                    if fieldName and newFieldName then
+                        return string.format("\tcomponent.%s = %s", fieldName, newFieldName)
+                    end
+                    return ""
+                end)
             })
         end)
     })
