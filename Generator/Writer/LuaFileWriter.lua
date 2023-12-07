@@ -1,9 +1,12 @@
 local FileWriter = require "Generator/Writer/FileWriter"
 local LuaFileWriter = Class("LuaFileWriter", FileWriter)
 
-function LuaFileWriter:PushRequire(path)
+function LuaFileWriter:PushRequire(path, scriptEntry)
     if not self.requires then
         self.requires = {}
+    end
+    if scriptEntry then
+        path = string.gsub(path, scriptEntry, "")
     end
     table.insert(self.requires, path)
 end

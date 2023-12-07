@@ -4,7 +4,7 @@ Template.FILE_NAME_PLACE_HOLDER = "FILE_NAME"
 
 setmetatable(Template, {
     __index = function(t, k)
-        local f, err = io.open(string.format("Generator/Template/%s.txt", k))
+        local f, err = io.open(string.format("%s/Template/%s.txt", cwd, k))
         assert(f, err)
         t[k] = f:read("*a")
         f:close()
