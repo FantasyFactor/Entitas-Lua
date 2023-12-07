@@ -1,4 +1,4 @@
-local cwd = string.match(arg[0], "(.+)/(.+).lua$")
+cwd = string.match(arg[0], "(.+)/.+.lua$")
 package.path = string.format("%s;%s/?.lua", package.path, cwd)
 package.path = string.format("%s;%s/../?.lua", package.path, cwd)
 
@@ -13,6 +13,7 @@ function GetContext(...)
     local args = {...}
     local sourceRoot = args[1]       --Components所在目录
     local generateRoot = args[2]     --生成的目标目录
+    local scriptEntry = args[3]      --生成的Lua脚本入口
 
     package.path = string.format("%s;%s/?.lua", package.path, sourceRoot)
 
@@ -30,6 +31,7 @@ function GetContext(...)
 
     return {
         generateRoot = generateRoot,
+        scriptEntry = scriptEntry ~= "" and scriptEntry,
         moduleInfos = moduleInfos
     }
 end
@@ -41,11 +43,10 @@ function Generate(context)
         error("Please input generate root")
         return
     end
-
     local contextsWriter = ContextsWriter(generateRoot)
     for moduleName, components in pairs(context.moduleInfos) do
         contextsWriter:PushModuleName(moduleName)
-        os.execute(string.format("mkdir %s\\%s", generateRoot, moduleName))
+        os.execute(string.format("mkdir %s\\%s", string.gsub(generateRoot, "/", "\\"), moduleName))
         local contextWriter = ContextWriter(generateRoot, moduleName)
         local entityWriter = EntityWriter(generateRoot, moduleName)
         local componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
@@ -62,13 +63,13 @@ function Generate(context)
             matcherWriter:PushComponentName(name)
         end
 
-        matcherWriter:PushRequire(componentsLookupWriter.path)
-        entityWriter:PushRequire(componentsLookupWriter.path)
-        contextWriter:PushRequire(entityWriter.path)
+        matcherWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
+        entityWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
+        contextWriter:PushRequire(entityWriter.path, context.scriptEntry)
         if hasUnique then
-            contextWriter:PushRequire(matcherWriter.path)
+            contextWriter:PushRequire(matcherWriter.path, context.scriptEntry)
         end
-        contextsWriter:PushRequire(contextWriter.path)
+        contextsWriter:PushRequire(contextWriter.path, context.scriptEntry)
 
         contextWriter:Flush()
         entityWriter:Flush()
