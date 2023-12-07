@@ -146,7 +146,7 @@ end
 function Entity:RemoveAllComponents()
     for k, v in pairs(self.m_Components) do
         if v ~= nil then
-            self.ReplaceComponent(k, nil)
+            self:ReplaceComponent(k, nil)
         end
     end
 end
