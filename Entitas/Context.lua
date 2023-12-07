@@ -55,7 +55,7 @@ local function UpdateGroupsComponentReplaced(self, entity, index, previousCompon
 
     if groups ~= nil then
         for i, group in ipairs(groups) do
-            group:UpdateEntity()
+            group:UpdateEntity(entity, index, previousComponent, newComponent)
         end
     end
 end
