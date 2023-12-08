@@ -1,0 +1,7 @@
+function ${FILE_NAME}:Ctor()
+${AddEntityIndex}
+end
+
+${GetEntities}
+---------------------keys--------------------------------
+${GetEntityKeys}

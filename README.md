@@ -24,20 +24,20 @@
 #### 组件根目录 - 模块目录 - 模块组件集合.lua
 ### 组件定义
 每个组件定义为一个数组：[组件名, 是否唯一, 字段数组]</br>
-字段数组：[字段名, 字段类型名, 生成注释]
+字段数组：[字段名, 字段类型名, 生成注释, 特性列表]
 ```
-local Color = {"Color", false, {
-    {"r", "number", "r通道"},
-    {"g", "number", "g通道"},
-    {"b", "number", "b通道"},
-    {"a", "number", "a通道"},
+local Position = {"Position", false, {
+    {"x", "number", "x坐标"},
+    {"y", "number", "y坐标"},
+    {"z", "number", "z坐标"},
 }}
 
-local View = {"View", false, {
-    {"gameObject", "userdata", "GameObject"},
+local Player = {"Player", false, {
+    {"id", "string", "玩家ID", {"PrimaryEntityIndex"}},
+    {"name", "string", "玩家名称", {"EntityIndex"}}
 }}
 
-return {Color, View}
+return {Position, Player}
 ```
 
 

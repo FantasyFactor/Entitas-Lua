@@ -9,11 +9,11 @@ local MatcherWriter = require "Generator/Writer/MatcherWriter"
 local ComponentsLookupWriter = require "Generator/Writer/ComponentsLookupWriter"
 local ContextsWriter = require "Generator/Writer/ContextsWriter"
 
-function GetContext(...)
+local function GetContext(...)
     local args = {...}
-    local sourceRoot = args[1]       --Components所在目录
-    local generateRoot = args[2]     --生成的目标目录
-    local scriptEntry = args[3]      --生成的Lua脚本入口
+    local sourceRoot = args[1] -- Components所在目录
+    local generateRoot = args[2] -- 生成的目标目录
+    local scriptEntry = args[3] -- 生成的Lua脚本入口
 
     package.path = string.format("%s;%s/?.lua", package.path, sourceRoot)
 
@@ -36,7 +36,7 @@ function GetContext(...)
     }
 end
 
-function Generate(context)
+local function Generate(context)
     local generateRoot = context.generateRoot
 
     if not generateRoot then
@@ -52,21 +52,27 @@ function Generate(context)
         local componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
         local matcherWriter = MatcherWriter(generateRoot, moduleName)
         local hasUnique = false
+        local hasAttribute = false
         for _, componentInfos in ipairs(components) do
             local name, unique, data = unpack(componentInfos)
+            local info = GenerateComponentInfo(name, unique, data)
             if unique then
-                contextWriter:PushComponentInfo(GenerateComponentInfo(name, data))
+                contextWriter:PushComponentInfo(info)
                 hasUnique = true
+            elseif next(info.attributes) then
+                contextWriter:PushComponentInfo(info)
+                hasAttribute = true
             end
-            entityWriter:PushComponentInfo(GenerateComponentInfo(name, data))
+            entityWriter:PushComponentInfo(info)
             componentsLookupWriter:PushComponentName(name)
             matcherWriter:PushComponentName(name)
         end
 
         matcherWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
         entityWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
+        contextWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
         contextWriter:PushRequire(entityWriter.path, context.scriptEntry)
-        if hasUnique then
+        if hasUnique or hasAttribute then
             contextWriter:PushRequire(matcherWriter.path, context.scriptEntry)
         end
         contextsWriter:PushRequire(contextWriter.path, context.scriptEntry)
@@ -80,19 +86,31 @@ function Generate(context)
     contextsWriter:Flush()
 end
 
-function GenerateComponentInfo(name, data)
+function GenerateComponentInfo(name, unique, data)
     local info = {
         name = name, -- component name
+        unique = unique,
         notes = {},
-        assigns = {},
+        assigns = {},   -- {{ fieldName, attributes = {[attributeName] = true }}
+        attributes = {},
         params = "" -- all component fields
     }
 
     for _, field in ipairs(data) do
-        local fieldName, fieldTypeName, note, initValue = unpack(field)
-        local newFieldName = string.format("new%s%s", string.char(string.byte(fieldName, 1, 1) - 32), string.sub(fieldName, 2))
+        local fieldName, fieldTypeName, note, attributes = unpack(field)
+        local newFieldName = string.format("new%s", UpperCaseFirst(fieldName))
         table.insert(info.assigns, {fieldName, newFieldName})
         table.insert(info.notes, string.format("---@param %s %s %s", newFieldName, fieldTypeName, note))
+        if attributes then
+            local attributeDict = {}
+            for _, attributeName in ipairs(attributes) do
+                attributeDict[attributeName] = true
+            end
+            table.insert(info.attributes, {
+                fieldName = fieldName,
+                attributes = attributeDict
+            })
+        end
         if info.params == "" then
             info.params = newFieldName
         else
@@ -101,6 +119,25 @@ function GenerateComponentInfo(name, data)
     end
 
     return info
+end
+
+function Split(str, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = {}
+    for s in string.gmatch(str, string.format("([^%s]+)", sep)) do
+        table.insert(t, s)
+    end
+    return t
+end
+
+function UpperCaseFirst(str)
+    local firstChar = string.byte(str, 1, 1)
+    if firstChar >= 97 and firstChar <= 122 then
+        return string.format("%s%s", string.char(firstChar - 32), string.sub(str, 2))
+    end
+    return str
 end
 
 local context = GetContext(...)

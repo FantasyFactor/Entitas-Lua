@@ -1,4 +1,6 @@
 local ${FILE_NAME} = Class("${FILE_NAME}", Context)
 
+${EntityIndex}
 ${UniqueEntities}
+
 return ${FILE_NAME}
