@@ -34,7 +34,7 @@ function AbstractEntityIndex:IndexEntities(group)
     end
 end
 
-local function OnEntityAdded(group, entity, index, component)
+local function OnEntityAdded(self, group, entity, index, component)
     local keys = self.m_GetKeys(entity, component)
 
     for i, key in ipairs(keys) do
@@ -44,7 +44,7 @@ local function OnEntityAdded(group, entity, index, component)
     end
 end
 
-local function OnEntityRemoved(group, entity, index, component)
+local function OnEntityRemoved(self, group, entity, index, component)
     local keys = self.m_GetKeys(entity, component)
 
     for i, key in ipairs(keys) do
