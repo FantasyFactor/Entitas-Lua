@@ -22,8 +22,8 @@ function PrimaryEntityIndex:GetEntity(key)
 end
 
 function PrimaryEntityIndex:AddEntity(key, entity)
-    local entity =  self.m_Index[key]
-    if entity ~= nil then
+    local cacheEntity =  self.m_Index[key]
+    if cacheEntity ~= nil then
         --TODO:Exception exist entity
         return 
     end
