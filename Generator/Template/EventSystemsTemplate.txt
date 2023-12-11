@@ -1,0 +1,7 @@
+local ${FILE_NAME} = Class("${FILE_NAME}", Systems)
+${Systems}
+function ${FILE_NAME}:Ctor(context)
+${RegisterSystems}
+end
+
+return ${FILE_NAME}

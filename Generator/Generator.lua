@@ -8,6 +8,7 @@ local EntityWriter = require "Generator/Writer/EntityWriter"
 local MatcherWriter = require "Generator/Writer/MatcherWriter"
 local ComponentsLookupWriter = require "Generator/Writer/ComponentsLookupWriter"
 local ContextsWriter = require "Generator/Writer/ContextsWriter"
+local EventSystemsWriter = require "Generator/Writer/EventSystemsWriter"
 
 local function GetContext(...)
     local args = {...}
@@ -36,79 +37,44 @@ local function GetContext(...)
     }
 end
 
-local function Generate(context)
-    local generateRoot = context.generateRoot
-
-    if not generateRoot then
-        error("Please input generate root")
-        return
-    end
-    local contextsWriter = ContextsWriter(generateRoot)
-    for moduleName, components in pairs(context.moduleInfos) do
-        contextsWriter:PushModuleName(moduleName)
-        os.execute(string.format("mkdir %s\\%s", string.gsub(generateRoot, "/", "\\"), moduleName))
-        local contextWriter = ContextWriter(generateRoot, moduleName)
-        local entityWriter = EntityWriter(generateRoot, moduleName)
-        local componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
-        local matcherWriter = MatcherWriter(generateRoot, moduleName)
-        local hasUnique = false
-        local hasAttribute = false
-        for _, componentInfos in ipairs(components) do
-            local name, unique, data = unpack(componentInfos)
-            local info = GenerateComponentInfo(name, unique, data)
-            if unique then
-                contextWriter:PushComponentInfo(info)
-                hasUnique = true
-            elseif next(info.attributes) then
-                contextWriter:PushComponentInfo(info)
-                hasAttribute = true
+local function GenerateAttributes(list)
+    local attributes = {}
+    if list then
+        for _, args in ipairs(list) do
+            local t = type(args)
+            if t == "table" and args[1] then
+                local name = args[1]
+                attributes[name] = args
+            elseif t == "string" then
+                attributes[args] = {args}
+            else
+                error("Unsupport param")
             end
-            entityWriter:PushComponentInfo(info)
-            componentsLookupWriter:PushComponentName(name)
-            matcherWriter:PushComponentName(name)
         end
-
-        matcherWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
-        entityWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
-        contextWriter:PushRequire(componentsLookupWriter.path, context.scriptEntry)
-        contextWriter:PushRequire(entityWriter.path, context.scriptEntry)
-        if hasUnique or hasAttribute then
-            contextWriter:PushRequire(matcherWriter.path, context.scriptEntry)
-        end
-        contextsWriter:PushRequire(contextWriter.path, context.scriptEntry)
-        contextsWriter:PushRequire(entityWriter.path, context.scriptEntry)
-
-        contextWriter:Flush()
-        entityWriter:Flush()
-        componentsLookupWriter:Flush()
-        matcherWriter:Flush()
     end
-    contextsWriter:Flush()
+    return attributes
 end
 
-function GenerateComponentInfo(name, unique, data)
+local function GenerateComponentInfo(name, unique, data, attributes)
     local info = {
         name = name, -- component name
         unique = unique,
         notes = {},
-        assigns = {},   -- {{ fieldName, attributes = {[attributeName] = true }}
-        attributes = {},
+        fieldAssigns = {}, --[[fieldName, newFieldName]]
+        fieldAttributes = {}, -- [{ fieldName : string; attributes : {[attributeName : string] : [attributeName, param...]}]
+        componentAttributes = GenerateAttributes(attributes), -- {[attributeName : string] : [attributeName, param...]}
         params = "" -- all component fields
     }
 
     for _, field in ipairs(data) do
-        local fieldName, fieldTypeName, note, attributes = unpack(field)
+        local fieldName, fieldTypeName, note, fieldAttributes = unpack(field)
         local newFieldName = string.format("new%s", UpperCaseFirst(fieldName))
-        table.insert(info.assigns, {fieldName, newFieldName})
+        table.insert(info.fieldAssigns, {fieldName, newFieldName})
         table.insert(info.notes, string.format("---@param %s %s %s", newFieldName, fieldTypeName, note))
-        if attributes then
-            local attributeDict = {}
-            for _, attributeName in ipairs(attributes) do
-                attributeDict[attributeName] = true
-            end
-            table.insert(info.attributes, {
+        if fieldAttributes then
+            table.insert(info.fieldAttributes, {
                 fieldName = fieldName,
-                attributes = attributeDict
+                attributes = GenerateAttributes(fieldAttributes)
             })
         end
         if info.params == "" then
@@ -119,6 +85,90 @@ function GenerateComponentInfo(name, unique, data)
     end
 
     return info
+end
+
+local function GenerateComponent(context, componentIndex, componentInfos)
+    local name, unique, data, attributes = unpack(componentInfos)
+    local info = GenerateComponentInfo(name, unique, data, attributes)
+    if unique then
+        context.contextWriter:PushComponentInfo(info)
+        context.hasUnique = true
+    elseif next(info.fieldAttributes) then
+        context.contextWriter:PushComponentInfo(info)
+        context.hasAttribute = true
+    end
+    context.entityWriter:PushComponentInfo(info)
+    context.componentsLookupWriter:PushComponentName(name)
+    context.matcherWriter:PushComponentName(name)
+    if next(info.componentAttributes) then
+        if info.componentAttributes.Event then
+            local _, priority = unpack(info.componentAttributes.Event)
+            local eventInfo = {
+                name = name,
+                priority = priority or 0,
+                index = componentIndex
+            }
+            if not context.eventSystemsWriter then
+                context.eventSystemsWriter = EventSystemsWriter(context.generateRoot, context.moduleName)
+            end
+            context.eventSystemsWriter:PushEventInfo(eventInfo)
+            local listenerName = string.format("%sListener", name)
+            context.entityWriter:PushComponentInfo(GenerateComponentInfo(listenerName, false, {{"listeners", "table", ""}}))
+            context.entityWriter:PushListenerInfo({
+                name = name
+            })
+            context.componentsLookupWriter:PushComponentName(listenerName)
+        end
+    end
+end
+
+local function Generate(context)
+    local generateRoot = context.generateRoot
+
+    if not generateRoot then
+        error("Please input generate root")
+        return
+    end
+    context.contextsWriter = ContextsWriter(generateRoot)
+    context.eventSystemsWriter = nil
+    for moduleName, components in pairs(context.moduleInfos) do
+        context.contextsWriter:PushModuleName(moduleName)
+        os.execute(string.format("mkdir %s\\%s", string.gsub(generateRoot, "/", "\\"), moduleName))
+        context.hasUnique = false
+        context.hasAttribute = false
+        context.contextWriter = ContextWriter(generateRoot, moduleName)
+        context.entityWriter = EntityWriter(generateRoot, moduleName)
+        context.componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
+        context.matcherWriter = MatcherWriter(generateRoot, moduleName)
+        context.moduleName = moduleName
+
+        for componentIndex, componentInfos in ipairs(components) do
+            GenerateComponent(context, componentIndex, componentInfos)
+        end
+
+        context.matcherWriter:PushRequire(context.componentsLookupWriter.path, context.scriptEntry)
+        context.entityWriter:PushRequire(context.componentsLookupWriter.path, context.scriptEntry)
+        context.contextWriter:PushRequire(context.componentsLookupWriter.path, context.scriptEntry)
+        context.contextWriter:PushRequire(context.entityWriter.path, context.scriptEntry)
+        if context.hasUnique or context.hasAttribute then
+            context.contextWriter:PushRequire(context.matcherWriter.path, context.scriptEntry)
+        end
+        context.contextsWriter:PushRequire(context.contextWriter.path, context.scriptEntry)
+        context.contextsWriter:PushRequire(context.entityWriter.path, context.scriptEntry)
+
+        context.contextWriter:Flush()
+        context.entityWriter:Flush()
+        context.componentsLookupWriter:Flush()
+        context.matcherWriter:Flush()
+
+        if context.eventSystemsWriter then
+            context.eventSystemsWriter:PushRequire(context.matcherWriter.path, context.scriptEntry)
+        end
+    end
+    context.contextsWriter:Flush()
+    if context.eventSystemsWriter then
+        context.eventSystemsWriter:Flush()
+    end
 end
 
 function Split(str, sep)

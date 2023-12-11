@@ -14,7 +14,7 @@ end
 
 function ContextWriter:PushComponentInfo(info)
     table.insert(self.componentInfos, info)
-    for _, attribute in ipairs(info.attributes) do
+    for _, attribute in ipairs(info.fieldAttributes) do
         if attribute.attributes.EntityIndex or attribute.attributes.PrimaryEntityIndex then
             table.insert(self.entityIndexInfos, {
                 componentName = info.name,
@@ -62,8 +62,6 @@ function ContextWriter:Flush()
     local getEntityKeys = self:ConcatByLine(self.entityIndexInfos, function(_, attributeInfo)
         return Template.Generate(getEntityKeysTemplate, self.fileName, getReplace(attributeInfo))
     end)
-
-    -- if cisPrimary
 
     local getEntitiesTemplate =
         "function ${FILE_NAME}:${GetEntityFunc}With${FieldKey}(${FieldName})\n\treturn self:GetEntityIndex(\"${FieldKey}\"):${GetEntityFunc}(${FieldName})\nend\n"

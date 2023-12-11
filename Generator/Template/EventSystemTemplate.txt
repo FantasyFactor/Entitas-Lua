@@ -1,0 +1,21 @@
+local ${FILE_NAME} = Class("${FILE_NAME}", ReactiveSystem)
+
+function ${FILE_NAME}:GetTrigger(context)
+    return context:CreateCollector({{
+        matcher = ${ModuleName}Matcher.Match${ComponentName}(),
+        groupEvent = GroupEvent.Added
+    }})
+end
+
+function ${FILE_NAME}:Filter(entity)
+    return entity:Has${ComponentName}() and entity:Has${ComponentName}Listener()
+end
+
+function ${FILE_NAME}:ExecuteCollection(entities)
+    for _, entity in ipairs(entities) do
+        local component = entity:Get${ComponentName}()
+        for _, listener in ipairs(entity:Get${ComponentName}Listener().listeners) do
+            listener(entity, component)
+        end
+    end
+end

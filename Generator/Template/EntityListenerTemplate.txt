@@ -1,0 +1,19 @@
+function ${FILE_NAME}:Push${ComponentName}Listener(listener)
+	if not self:Has${ComponentName}Listener() then
+		self:Add${ComponentName}Listener({listener})
+	else
+		local listeners = self:Get${ComponentName}Listener()
+		table.insert(listeners, listener)
+	end
+end
+
+function ${FILE_NAME}:Pop${ComponentName}Listener(listener)
+	if self:Has${ComponentName}Listener() then
+		local listeners = self:Get${ComponentName}Listener()
+		for i, v in ipairs(listeners) do
+			if v == listener then
+				return table.remove(listeners, i)
+			end
+		end
+	end
+end
