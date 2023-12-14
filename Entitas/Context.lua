@@ -25,7 +25,7 @@ function Context:Ctor(startCreationIndex, entityFactory)
     self.onEntityCreated = Delegate()    --context, entity
     self.onEntityWillBeDestroyed = Delegate()    --context, entity
     self.onEntityDestroyed = Delegate()     --context, entity
-    self.onOnGroupCreated = Delegate()    --context, group
+    self.onGroupCreated = Delegate()    --context, group
 
     self.m_ReusableEntities = Stack() --entity
     self.m_RetainedEntities = {}
@@ -201,8 +201,8 @@ function Context:GetGroup(matcher)
             table.insert(indexGroups, group)
         end
 
-        if self.onOnGroupCreated ~= nil then
-            self.onOnGroupCreated(self, group)
+        if self.onGroupCreated ~= nil then
+            self.onGroupCreated(self, group)
         end
         
     end
