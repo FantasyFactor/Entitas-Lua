@@ -91,7 +91,7 @@ local function OnDestroyEntity(self, entity)
     end
 
     if entity:GetRetainCount() == 1 then 
-        entity.onEntityReleased:RemoveDelegate(self.onEntityReleased) 
+        entity.onEntityReleased:RemoveDelegate(self, OnEntityReleased) 
         self.m_ReusableEntities:Push(entity)
         entity:Release(self)
         entity:RemoveAllOnEntityReleasedHandlers()
@@ -243,7 +243,7 @@ end
 
 function Context:Reset()
     self:DestroyAllEntities()
-    self.ResetCreationIndex()
+    self:ResetCreationIndex()
 end
 
 --- 创建Collector
