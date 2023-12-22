@@ -5,7 +5,7 @@ local EntityIndex = Class("EntityIndex", AbstractEntityIndex)
 
 
 function EntityIndex:Ctor(name, group, getKeys)
-    self.m_Index = {}
+    self.m_Index = {} --<key, <entity, has>>
 
     self:Activate()
 end
@@ -29,32 +29,25 @@ end
 
 function EntityIndex:AddEntity(key, entity)
     local entities = self:GetEntities(key)
-    table.insert(entities, entity)
+    local has = entities[entity]
+    if not has then
+        entities[entity] = true
+    end
 
     entity:GetAerc():SafeRetain(self)
 end
 
 function EntityIndex:RemoveEntity(key, entity)
     local entities = self:GetEntities(key)
-    
-    local removeIndex = nil
 
-    for i, value in ipairs(entities) do
-        if entity == value then
-            removeIndex = i
-            break
-        end
-    end
+    entities[entity] = nil
 
-    if removeIndex ~= nil then
-        table.remove(entities, removeIndex)
-        entity:GetAerc():SafeRelease(self)
-    end
+    entity:GetAerc():SafeRelease(self)
 end
 
 function EntityIndex:Clear()
     for key, entities in pairs(self.m_Index) do
-        for i, entity in ipairs(entities) do
+        for entity in pairs(entities) do
             if entity ~= nil then
                 entity:GetAerc():SafeRelease(self)
             end

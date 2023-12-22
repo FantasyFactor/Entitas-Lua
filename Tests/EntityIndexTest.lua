@@ -48,13 +48,25 @@ local function GetKeys(entity, component)
     return {component1.x}
 end
 
+local function GetIndexLength(tb)
+    local n = 0
+
+    for k, v in pairs(tb) do
+        if k ~= nil then
+            n = n + 1 
+        end
+    end
+
+    return n
+end
+
 function TestEntityIndexCtor()
     local entities = GetTestEntities()
     local group = GetGroup(entities)
     local entityIndex = EntityIndex("entityIndex1", group, GetKeys)
 
-    assert(#(entityIndex.m_Index[1]) == 3)
-    assert(#(entityIndex.m_Index[3]) == 2)
+    assert(GetIndexLength(entityIndex.m_Index[1]) == 3)
+    assert(GetIndexLength(entityIndex.m_Index[3]) == 2)
 end
 
 function TestEntityIndexDeactivate()
@@ -102,7 +114,7 @@ function TestEntityIndexAddEntity()
 
     entityIndex:AddEntity(component.x, entity)
     
-    assert(#(entityIndex.m_Index[3]) == 1)
+    assert(GetIndexLength(entityIndex.m_Index[3]) == 1)
 end
 
 function TestEntityIndexRemoveEntity()
@@ -110,11 +122,11 @@ function TestEntityIndexRemoveEntity()
     local group = GetGroup(entities)
     local entityIndex = EntityIndex("entityIndex1", group, GetKeys)
 
-    assert(#(entityIndex.m_Index[3]) == 2)
+    assert(GetIndexLength(entityIndex.m_Index[3]) == 2)
 
     entityIndex:RemoveEntity(3, entities[3])
 
-    assert(#(entityIndex.m_Index[3]) == 1)
+    assert(GetIndexLength(entityIndex.m_Index[3]) == 1)
 
     entityIndex:RemoveEntity(3, entities[7])
 
@@ -129,9 +141,9 @@ function TestEntityIndexGetEntities()
 
     local indexEntities = entityIndex:GetEntities(3)
 
-    assert(#(indexEntities) == 2)
-    assert(indexEntities[1] == entities[3])
-    assert(indexEntities[2] == entities[7])
+    assert(GetIndexLength(indexEntities) == 2)
+    assert(indexEntities[entities[3]])
+    assert(indexEntities[entities[7]])
 end
 
 
