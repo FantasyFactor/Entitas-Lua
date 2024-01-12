@@ -20,7 +20,7 @@ function FileWriter:WriteLineFormat(format, ...)
 end
 
 function FileWriter:WriteTemplate(template, replace)
-    self:WriteLine(Template.Generate(template, self.fileName, replace))
+    self:WriteLine(Template.Generate(template, nil, self.fileName, replace))
 end
 
 function FileWriter:Close()

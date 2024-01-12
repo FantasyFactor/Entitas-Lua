@@ -2,11 +2,11 @@ local LuaFileWriter = require "Generator/Writer/LuaFileWriter"
 local Template = require "Generator/Template/Template"
 local EntityWriter = Class("EntityWriter", LuaFileWriter)
 
-function EntityWriter:Ctor(root, moduleName)
+function EntityWriter:Ctor(nameSpace, root, moduleName)
     self.moduleName = moduleName
     self.componentInfos = {}
     self.listenerInfos = {}
-    self:Open(string.format("%s/%s/%sEntity.lua", root, moduleName, moduleName))
+    self:Open(string.format("%s/%s/%sEntity.lua", root, moduleName, moduleName), nameSpace)
     self:PushRequire("Entitas/Entity.lua")
 end
 
@@ -23,7 +23,7 @@ function EntityWriter:Flush()
 
     self:WriteTemplate(Template.EntityTemplate, {
         Components = self:ConcatByLine(self.componentInfos, function(_, componentInfo)
-            return Template.Generate(Template.ComponentTemplate, self.fileName, {
+            return Template.Generate(Template.ComponentTemplate, self.nameSpace, self.fileName, {
                 ModuleName = self.moduleName,
                 ComponentName = componentInfo.name,
                 Notes = self:ConcatByLine(componentInfo.notes),
@@ -38,7 +38,7 @@ function EntityWriter:Flush()
             })
         end),
         Listeners = self:ConcatByLine(self.listenerInfos, function(_, listenerInfo)
-            return Template.Generate(Template.EntityListenerTemplate, self.fileName, {
+            return Template.Generate(Template.EntityListenerTemplate, self.nameSpace, self.fileName, {
                 ComponentName = listenerInfo.name
             })
         end),

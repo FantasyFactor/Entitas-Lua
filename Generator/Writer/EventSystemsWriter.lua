@@ -2,10 +2,10 @@ local LuaFileWriter = require "Generator/Writer/LuaFileWriter"
 local Template = require "Generator/Template/Template"
 local EventSystemsWriter = Class("EventSystemsWriter", LuaFileWriter)
 
-function EventSystemsWriter:Ctor(root, moduleName)
+function EventSystemsWriter:Ctor(nameSpace, root, moduleName)
     self.moduleName = moduleName
     self.eventInfos = {}
-    self:Open(string.format("%s/%s/%sEventSystems.lua", root, moduleName, moduleName))
+    self:Open(string.format("%s/%s/%sEventSystems.lua", root, moduleName, moduleName), nameSpace)
     self:PushRequire("Entitas/Systems.lua")
     self:PushRequire("Entitas/ReactiveSystem.lua")
 end
@@ -26,7 +26,7 @@ function EventSystemsWriter:Flush()
 
     self:WriteTemplate(Template.EventSystemsTemplate, {
         Systems = self:ConcatByLine(self.eventInfos, function(_, eventInfo)
-            return Template.Generate(Template.EventSystemTemplate, string.format("%sEventSystem", eventInfo.name), {
+            return Template.Generate(Template.EventSystemTemplate, self.nameSpace, string.format("%sEventSystem", eventInfo.name), {
                 ModuleName = self.moduleName,
                 ComponentName = eventInfo.name,
             })

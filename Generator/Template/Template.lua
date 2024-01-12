@@ -1,6 +1,7 @@
 local Template = {}
 
-Template.FILE_NAME_PLACE_HOLDER = "FILE_NAME"
+Template.FILE_NAME_PLACEHOLDER = "FILE_NAME"
+Template.NAME_SPACE_PLACEHOLDER = "NAME_SPACE"
 
 setmetatable(Template, {
     __index = function(t, k)
@@ -12,9 +13,10 @@ setmetatable(Template, {
     end
 })
 
-function Template.Generate(template, fileName, replace)
+function Template.Generate(template, nameSpace, fileName, replace)
     replace = replace or {}
-    replace[Template.FILE_NAME_PLACE_HOLDER] = fileName
+    replace[Template.FILE_NAME_PLACEHOLDER] = fileName
+    replace[Template.NAME_SPACE_PLACEHOLDER] = nameSpace
     return string.gsub(template, "%${([%w_]+)}", replace)
 end
 

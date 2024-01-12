@@ -1,4 +1,4 @@
-local ${FILE_NAME} = Class("${FILE_NAME}", Entity)
+local ${FILE_NAME} = Class("${NAME_SPACE}${FILE_NAME}", Entity)
 
 ${Components}
 ${Listeners}

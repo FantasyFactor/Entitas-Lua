@@ -1,11 +1,17 @@
-local ${FILE_NAME} = Singleton("${FILE_NAME}")
+local ${FILE_NAME} = Singleton("${NAME_SPACE}${FILE_NAME}")
 
 function ${FILE_NAME}:Init()
 ${CreateContexts}
+${CreateContextObservers}
 end
 
 function ${FILE_NAME}:Reset()
 ${ResetContexts}
+end
+
+function ${FILE_NAME}:Destroy()
+    self:Reset()
+${DestroyContextObservers}
 end
 
 return ${FILE_NAME}

@@ -1,5 +1,15 @@
+local Template = require "Generator/Template/Template"
 local FileWriter = require "Generator/Writer/FileWriter"
 local LuaFileWriter = Class("LuaFileWriter", FileWriter)
+
+function LuaFileWriter:Open(path, nameSpace)
+    self.nameSpace = nameSpace
+    FileWriter.Open(self, path)
+end
+
+function LuaFileWriter:WriteTemplate(template, replace)
+    self:WriteLine(Template.Generate(template, self.nameSpace, self.fileName, replace))
+end
 
 --- 局部的依赖引入
 ---@param path string
@@ -9,7 +19,7 @@ function LuaFileWriter:PushRequire(path, scriptEntry)
         self.requires = {}
     end
     if scriptEntry then
-        path = string.gsub(path, scriptEntry, "")
+        path = string.format("%s%s", scriptEntry, path)
     end
     table.insert(self.requires, path)
 end

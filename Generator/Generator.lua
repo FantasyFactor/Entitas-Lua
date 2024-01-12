@@ -12,14 +12,16 @@ local EventSystemsWriter = require "Generator/Writer/EventSystemsWriter"
 
 local function GetContext(...)
     local args = {...}
-    local sourceRoot = args[1] -- Components所在目录
-    local generateRoot = args[2] -- 生成的目标目录
-    local scriptEntry = args[3] -- 生成的Lua脚本入口
-
+    local nameSpace = args[1]
+    local sourceRoot = args[2] -- Components所在目录
+    local generateRoot = args[3] -- 生成的目标目录
+    local scriptEntry = args[4] -- 生成的Lua脚本入口
+    local generateContexts = args[5] -- 是否生成Contexts
+    local enableUnityDebugger = args[6] -- 是否启用Unity调试接口
     package.path = string.format("%s;%s/?.lua", package.path, sourceRoot)
 
     local moduleInfos = {}
-    for i = 4, #args do
+    for i = 7, #args do
         if args[i] and args[i] ~= "" then
             local module, name = string.match(args[i], "(%w+)\\(%w+)$")
             if module then
@@ -29,11 +31,13 @@ local function GetContext(...)
             end
         end
     end
-
     return {
+        nameSpace = nameSpace,
         generateRoot = generateRoot,
         scriptEntry = scriptEntry ~= "" and scriptEntry,
-        moduleInfos = moduleInfos
+        moduleInfos = moduleInfos,
+        generateContexts = generateContexts == "1",
+        enableUnityDebugger = enableUnityDebugger == "1"
     }
 end
 
@@ -43,10 +47,10 @@ local function GenerateAttributes(list)
         for _, args in ipairs(list) do
             local t = type(args)
             if t == "table" and args[1] then
-                local name = args[1]
+                local name = table.remove(args, 1)
                 attributes[name] = args
             elseif t == "string" then
-                attributes[args] = {args}
+                attributes[args] = {}
             else
                 error("Unsupport param")
             end
@@ -102,14 +106,14 @@ local function GenerateComponent(context, componentIndex, componentInfos)
     context.matcherWriter:PushComponentName(name)
     if next(info.componentAttributes) then
         if info.componentAttributes.Event then
-            local _, priority = unpack(info.componentAttributes.Event)
+            local priority = unpack(info.componentAttributes.Event)
             local eventInfo = {
                 name = name,
                 priority = priority or 0,
                 index = componentIndex
             }
             if not context.eventSystemsWriter then
-                context.eventSystemsWriter = EventSystemsWriter(context.generateRoot, context.moduleName)
+                context.eventSystemsWriter = EventSystemsWriter(context.nameSpace, context.generateRoot, context.moduleName)
             end
             context.eventSystemsWriter:PushEventInfo(eventInfo)
             local listenerName = string.format("%sListener", name)
@@ -129,15 +133,16 @@ local function Generate(context)
         error("Please input generate root")
         return
     end
-    context.contextsWriter = ContextsWriter(generateRoot)
+    if context.generateContexts then
+        context.contextsWriter = ContextsWriter(context.nameSpace, generateRoot, context.enableUnityDebugger)
+    end
     context.eventSystemsWriter = nil
     for moduleName, components in pairs(context.moduleInfos) do
-        context.contextsWriter:PushModuleName(moduleName)
         os.execute(string.format("mkdir %s\\%s", string.gsub(generateRoot, "/", "\\"), moduleName))
         context.hasUnique = false
         context.hasAttribute = false
-        context.contextWriter = ContextWriter(generateRoot, moduleName)
-        context.entityWriter = EntityWriter(generateRoot, moduleName)
+        context.contextWriter = ContextWriter(context.nameSpace, generateRoot, moduleName, context.enableUnityDebugger)
+        context.entityWriter = EntityWriter(context.nameSpace, generateRoot, moduleName)
         context.componentsLookupWriter = ComponentsLookupWriter(generateRoot, moduleName)
         context.matcherWriter = MatcherWriter(generateRoot, moduleName)
         context.moduleName = moduleName
@@ -153,9 +158,11 @@ local function Generate(context)
         if context.hasUnique or context.hasAttribute then
             context.contextWriter:PushRequire(context.matcherWriter.path, context.scriptEntry)
         end
-        context.contextsWriter:PushRequire(context.contextWriter.path, context.scriptEntry)
-        context.contextsWriter:PushRequire(context.entityWriter.path, context.scriptEntry)
-
+        if context.contextsWriter then
+            context.contextsWriter:PushModuleName(moduleName)
+            context.contextsWriter:PushRequire(context.contextWriter.path, context.scriptEntry)
+            context.contextsWriter:PushRequire(context.entityWriter.path, context.scriptEntry)
+        end
         context.contextWriter:Flush()
         context.entityWriter:Flush()
         context.componentsLookupWriter:Flush()
@@ -165,7 +172,9 @@ local function Generate(context)
             context.eventSystemsWriter:PushRequire(context.matcherWriter.path, context.scriptEntry)
         end
     end
-    context.contextsWriter:Flush()
+    if context.contextsWriter then
+        context.contextsWriter:Flush()
+    end
     if context.eventSystemsWriter then
         context.eventSystemsWriter:Flush()
     end
@@ -186,6 +195,14 @@ function UpperCaseFirst(str)
     local firstChar = string.byte(str, 1, 1)
     if firstChar >= 97 and firstChar <= 122 then
         return string.format("%s%s", string.char(firstChar - 32), string.sub(str, 2))
+    end
+    return str
+end
+
+function LowerCaseFirst(str)
+    local firstChar = string.byte(str, 1, 1)
+    if firstChar >= 65 and firstChar <= 90 then
+        return string.format("%s%s", string.char(firstChar + 32), string.sub(str, 2))
     end
     return str
 end

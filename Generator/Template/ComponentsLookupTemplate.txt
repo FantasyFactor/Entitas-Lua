@@ -4,4 +4,6 @@ ${ComponentIndices}
 
 ${FILE_NAME}.TotalComponents = ${ComponentCount}
 
+${ComponentNames}
+
 return ${FILE_NAME}

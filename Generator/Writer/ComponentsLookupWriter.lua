@@ -19,10 +19,15 @@ function ComponentsLookupWriter:Flush()
         return string.format("%s.%s = %s", self.fileName, componentName, index)
     end)
 
+    local componentNames = self:ConcatByLine(self.componentNames, function(index, componentName)
+        return string.format("%s[%s] = \"%s\"", self.fileName, index, componentName)
+    end)
+
     self:WriteTemplate(Template.ComponentsLookupTemplate, {
         ModuleName = self.moduleName,
         ComponentCount = #self.componentNames,
-        ComponentIndices = componentIndices
+        ComponentIndices = componentIndices,
+        ComponentNames = componentNames
     })
 
     self:Close()
