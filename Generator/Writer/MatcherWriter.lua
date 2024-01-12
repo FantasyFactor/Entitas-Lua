@@ -26,7 +26,7 @@ function MatcherWriter:Flush()
     return ${FILE_NAME}.${ComponentName}Matcher
 end
 ]]
-            return Template.Generate(template, self.fileName, {
+            return Template.Generate(template, self.nameSpace, self.fileName, {
                 ModuleName = self.moduleName,
                 ComponentName = componentName,
             })

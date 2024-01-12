@@ -1,0 +1,58 @@
+
+local function OnEntityReleased(self, entity)
+	self.observer:OnEntityReleased(entity)
+end
+
+local function OnComponentAdded(self, entity, index, component)
+	local info = {
+        name = ${ModuleName}ComponentsLookup[index],
+		keys = {},
+		values = {},
+		index = index
+	}
+	for k, v in pairs(component) do
+		table.insert(info.keys, k)
+		table.insert(info.values, tostring(v))
+	end
+
+	self.observer:OnComponentUpdate(entity, index, info)
+end
+
+local function OnComponentRemoved(self, entity, index, component)
+	self.observer:OnComponentRemoved(entity, index)
+end
+
+local function OnComponentReplaced(self, entity, index, previousComponent, replacement)
+	OnComponentAdded(self, entity, index, replacement)
+end
+
+local function OnEntityCreated(self, context, entity)
+	self.observer:OnEntityCreated(entity)
+	entity.onEntityReleased:AddDelegate(self, OnEntityReleased)
+	entity.onComponentAdded:AddDelegate(self, OnComponentAdded)
+    entity.onComponentRemoved:AddDelegate(self, OnComponentRemoved)
+    entity.onComponentReplaced:AddDelegate(self, OnComponentReplaced)
+end
+
+local function OnGroupCreated(self, context, group)
+	self.observer:OnGroupCreated(context, group)
+end
+
+function ${FILE_NAME}:CreateObserver()
+	if CS and CS.EntitasLua and CS.EntitasLua.ContextObserver then
+        if CS.UnityEngine and CS.UnityEngine.Application and CS.UnityEngine.Application.isEditor then
+			self.observer = CS.EntitasLua.ContextObserver(self, "${ModuleName}")
+			self.onEntityCreated:AddDelegate(self, OnEntityCreated)
+			self.onGroupCreated:AddDelegate(self, OnGroupCreated)
+		end
+	end
+end
+
+function ${FILE_NAME}:DestroyObserver()
+	if self.observer then
+		self.onEntityCreated:RemoveDelegate(self, OnEntityCreated)
+		self.onGroupCreated:RemoveDelegate(self, OnGroupCreated)
+		self.observer:Destroy()
+		self.observer = nil
+	end
+end

@@ -2,9 +2,10 @@ local LuaFileWriter = require "Generator/Writer/LuaFileWriter"
 local Template = require "Generator/Template/Template"
 local ContextsWriter = Class("ContextsWriter", LuaFileWriter)
 
-function ContextsWriter:Ctor(root)
+function ContextsWriter:Ctor(nameSpace, root, enableUnityDebugger)
     self.moduleNames = {}
-    self:Open(string.format("%s/Contexts.lua", root))
+    self.enableUnityDebugger = enableUnityDebugger
+    self:Open(string.format("%s/Contexts.lua", root), nameSpace)
     self:PushRequireLib("Core/Singleton")
 end
 
@@ -23,9 +24,24 @@ function ContextsWriter:Flush()
         return string.format("\tself.%s:Reset()", string.lower(moduleName))
     end)
 
+    local createContextObservers = ""
+    local destroyContextObservers = ""
+    if self.enableUnityDebugger then
+        createContextObservers = self:ConcatByLine(self.moduleNames, function(_, moduleName)
+            local lowerModuleName = string.lower(moduleName)
+            return string.format("\tself.%s:CreateObserver()", lowerModuleName)
+        end)
+        destroyContextObservers = self:ConcatByLine(self.moduleNames, function(_, moduleName)
+            local lowerModuleName = string.lower(moduleName)
+            return string.format("\tself.%s:DestroyObserver()", lowerModuleName)
+        end)
+    end
+
     self:WriteTemplate(Template.ContextsTemplate, {
         CreateContexts = createContexts,
-        ResetContexts = resetContexts
+        ResetContexts = resetContexts,
+        CreateContextObservers = createContextObservers,
+        DestroyContextObservers = destroyContextObservers
     })
     self:Close()
 end
