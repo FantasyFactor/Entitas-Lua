@@ -4,9 +4,10 @@ local DelegateImplementation = {}
 
 local function Invoke(self, ...)
     for i = 1, self.m_Count, 1 do
-        local value = self.m_InvokeList[i]
-        if value ~= nil and value.callback ~= nil then
-            value.callback(value.target, ...)
+        local target = self.m_Targets[i]
+        local callback = self.m_Callbacks[i]
+        if callback ~= nil then
+            callback(target, ...)
         end
     end
 end
@@ -16,8 +17,8 @@ local function AddDelegate(self, target, ...)
     for i = 1, n, 1 do
         local callback = select(i, ...)
         if type(callback) == "function" then
-            local value = {target = target, callback = callback}
-            table.insert(self.m_InvokeList, value)
+            table.insert(self.m_Targets, target)
+            table.insert(self.m_Callbacks, callback)
             self.m_Count = self.m_Count + 1
         else
             error(string.format("Can't add not function type:%s", type(callback))) 
@@ -31,9 +32,11 @@ local function RemoveDelegate(self, target, ...)
         local callback = select(i, ...)
         if type(callback) == "function" then
             for j = 1, self.m_Count, 1 do
-                local value = self.m_InvokeList[j]
-                if value.target == target and value.callback == callback then
-                    table.remove(self.m_InvokeList, j)
+                local currentTarget = self.m_Targets[j]
+                local currentCallback = self.m_Callbacks[j]
+                if currentTarget == target and currentCallback == callback then
+                    table.remove(self.m_Targets, j)
+                    table.remove(self.m_Callbacks, j)
                     self.m_Count = self.m_Count - 1
                     break
                 end
@@ -45,7 +48,8 @@ local function RemoveDelegate(self, target, ...)
 end
 
 local function RemoveAllDelegate(self)
-    self.m_InvokeList = {}
+    self.m_Targets = {}
+    self.m_Callbacks = {}
     self.m_Count = 0
 end
 
@@ -55,7 +59,7 @@ end
 
 setmetatable(Delegate, {
     __call = function()
-        local delegate = {m_InvokeList = {}, m_Count = 0}
+        local delegate = {m_Targets = {}, m_Callbacks = {}, m_Count = 0}
         setmetatable(delegate, DelegateImplementation)
         return delegate
     end
